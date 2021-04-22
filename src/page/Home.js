@@ -1,20 +1,12 @@
-import React, { Component } from 'react'
-import ReactDOM from 'react-dom'
+import { Button, Form, Input, InputNumber, Select } from 'antd'
+import 'antd/dist/antd.css'
+import React from 'react'
+import { Container } from 'reactstrap'
 import styled from 'styled-components'
-import Clipboard from 'clipboard'
-import {
-  Button,
-  Container,
-  Form,
-  FormGroup,
-  Input,
-  Label,
-  Modal,
-  ModalHeader,
-  ModalBody,
-  ModalFooter,
-} from 'reactstrap'
-import { rules, encrypt, scrollIntoView } from '../common'
+import { encryptPassword, rules } from '../common'
+
+const { Item } = Form
+const { Option } = Select
 
 const Wrapper = styled(Container)`
   min-height: calc(100vh - 56px);
@@ -27,113 +19,88 @@ const Wrapper = styled(Container)`
   }
 `
 
-const PassForm = styled(Form)`
-  max-width: 480px;
-  width: 100%;
-  height: 380px;
-  padding: 15px 0;
-`
+const Home = () => {
+  const [form] = Form.useForm()
 
-export default class Home extends Component {
-  state = {
-    selected: 0,
-    domain: '',
-    length: '',
-    password: '',
-    modal: false,
+  const onFinish = ({ selected, name, salt, length }) => {
+    const domain = selected === 0 ? name : rules[selected]
+
+    const password = encryptPassword({
+      domain,
+      length,
+      salt,
+    })
+    form.setFieldsValue({ password })
   }
 
-  componentDidMount() {
-    this.clipboard()
-    this.keyup()
-    scrollIntoView(ReactDOM.findDOMNode(this.refs.passForm).querySelectorAll('input'))
+  const formStyle = {
+    maxWidth: '480px',
+    width: '100%',
+    height: '380px',
+    padding: '15px 0',
   }
 
-  render() {
-    const { selected, modal } = this.state
-    return (
-      <Wrapper>
-        <PassForm ref="passForm">
-          <FormGroup>
-            <Label>域名</Label>
-            <Input type="select" onChange={event => this.setState({ selected: ~~event.target.value })} value={selected}>
-              {rules.map((rule, index) => (
-                <option value={index} key={index}>
-                  {index === 0 ? rule.name : `${rule.domain} - ${rule.name}`}
-                </option>
-              ))}
-            </Input>
-          </FormGroup>
-          <div style={{ display: selected === 0 ? 'block' : 'none' }}>
-            <FormGroup>
-              <Input type="text" onInput={event => this.setState({ domain: event.target.value })} />
-            </FormGroup>
-            <FormGroup>
-              <Label>长度</Label>
-              <Input type="number" onInput={event => this.setState({ length: event.target.value })} />
-            </FormGroup>
-          </div>
-          <FormGroup>
-            <Label>密码</Label>
-            <Input
-              type="password"
-              autoComplete="on"
-              onInput={event => this.setState({ password: event.target.value })}
-            />
-            {/* 当只有一个密码框时，回车会触发 form 提交，加个隐藏的 input 解决 */}
-            <Input style={{display: 'none'}} />
-          </FormGroup>
-          <Button color="secondary" ref="submitButton" onClick={this.submitForm}>
+  const layout = {
+    labelCol: { span: 6 },
+    wrapperCol: { span: 16 },
+  }
+
+  const tailLayout = {
+    wrapperCol: { offset: 6, span: 16 },
+  }
+
+  return (
+    <Wrapper>
+      <Form {...layout} form={form} style={formStyle} onFinish={onFinish}>
+        <Item label="选择平台" required name="selected" rules={[{ required: true, message: '请选择平台' }]}>
+          <Select>
+            {rules.map((rule, index) => (
+              <Option value={index} key={index}>
+                {rule}
+              </Option>
+            ))}
+          </Select>
+        </Item>
+
+        <Item noStyle dependencies={['selected']}>
+          {({ getFieldValue }) => {
+            const selected = getFieldValue('selected')
+            if (selected === 0) {
+              return (
+                <Item label="平台" required name="name" rules={[{ required: true, message: '请输入要加密的账号平台' }]}>
+                  <Input placeholder="请输入要加密的账号平台" />
+                </Item>
+              )
+            }
+          }}
+        </Item>
+
+        <Item
+          label="长度"
+          required
+          initialValue={12}
+          name="length"
+          rules={[{ required: true, message: '请输入生成密码的长度' }]}
+        >
+          <InputNumber style={{ width: '100%' }} min={6} max={20} precision={0} />
+        </Item>
+
+        <Item label="秘钥" name="salt" required rules={[{ required: true, message: '请输入加密的盐' }]}>
+          <Input placeholder="请输入加密的盐" />
+        </Item>
+
+        <Item label="密码" name="password">
+          <Input placeholder="计算得到的密码" />
+        </Item>
+
+        <Form.Item {...tailLayout}>
+          <Button color="secondary" htmlType="submit">
             确定
           </Button>
-        </PassForm>
-        <Modal isOpen={modal} centered={true}>
-          <ModalHeader>提示</ModalHeader>
-          <ModalBody>密码已复制到剪贴板</ModalBody>
-          <ModalFooter>
-            <Button color="secondary" onClick={event => this.setState({ modal: false })}>
-              关闭
-            </Button>
-          </ModalFooter>
-        </Modal>
-      </Wrapper>
-    )
-  }
-
-  submitForm = event => {
-    if (this.encrypt()) {
-      this.setState({ modal: true })
-    }
-  }
-
-  encrypt() {
-    const { selected, domain, length, password } = this.state
-    const rule = rules[selected]
-    if (!rule || !password) {
-      return ''
-    }
-    if (selected === 0) {
-      return encrypt({
-        domain,
-        length,
-        salt: password,
-      })
-    }
-    return encrypt({
-      ...rule,
-      salt: password,
-    })
-  }
-
-  clipboard() {
-    new Clipboard(ReactDOM.findDOMNode(this.refs.submitButton), { text: () => this.encrypt() })
-  }
-
-  keyup() {
-    const handlers = {
-      13: () => ReactDOM.findDOMNode(this.refs.submitButton).click(),
-      27: () => this.setState({ modal: false }),
-    }
-    window.addEventListener('keyup', ({ keyCode }) => handlers[keyCode] && handlers[keyCode]())
-  }
+        </Form.Item>
+      </Form>
+    </Wrapper>
+  )
 }
+
+export default Home

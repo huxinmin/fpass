@@ -1,12 +1,6 @@
 import React from 'react'
-import styled, { injectGlobal } from 'styled-components'
 import { Container, Navbar, NavbarBrand } from 'reactstrap'
-
-injectGlobal`
-  body {
-    padding-top: 56px;
-  }
-`
+import styled from 'styled-components'
 
 const Wrapper = styled(Navbar).attrs({
   dark: true,
@@ -16,7 +10,7 @@ const Wrapper = styled(Navbar).attrs({
 `
 
 const GithubLink = styled.a.attrs({
-  href: 'https://github.com/fpass/fpass',
+  href: 'https://github.com/huxinmin/password',
   target: '_blank',
 })`
   display: inline-block;
@@ -37,7 +31,7 @@ const GithubLink = styled.a.attrs({
 export default () => (
   <Wrapper>
     <Container>
-      <NavbarBrand href="/">FPASS</NavbarBrand>
+      <NavbarBrand href="/">PASSWORD</NavbarBrand>
       <GithubLink>
         <svg height="32" version="1.1" viewBox="0 0 16 16" width="32">
           <path

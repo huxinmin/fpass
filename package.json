@@ -10,8 +10,8 @@
     "precommit": "pretty-quick --staged"
   },
   "dependencies": {
+    "antd": "^4.15.2",
     "bootstrap": "^4.6.0",
-    "clipboard": "^2.0.8",
     "js-sha512": "^0.8.0",
     "react": "^17.0.2",
     "react-dom": "^17.0.2",
