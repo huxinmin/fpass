@@ -13,7 +13,7 @@ const Wrapper = styled(Container)`
   display: flex;
   align-items: center;
   justify-content: center;
-
+  padding-top: 57px;
   @media screen and (max-width: 767px) {
     display: block;
   }
@@ -46,12 +46,13 @@ const Home = () => {
   }
 
   const tailLayout = {
-    wrapperCol: { offset: 6, span: 16 },
+    labelCol: { span: 6 },
+    wrapperCol: { span: 16 },
   }
 
   return (
     <Wrapper>
-      <Form {...layout} form={form} style={formStyle} onFinish={onFinish}>
+      <Form {...layout} form={form} style={formStyle} onFinish={onFinish} colon={false}>
         <Item label="选择平台" required name="selected" rules={[{ required: true, message: '请选择平台' }]}>
           <Select>
             {rules.map((rule, index) => (
@@ -93,7 +94,7 @@ const Home = () => {
           <Input placeholder="计算得到的密码" />
         </Item>
 
-        <Form.Item {...tailLayout}>
+        <Form.Item {...tailLayout} label={<div />}>
           <Button color="secondary" htmlType="submit">
             确定
           </Button>
