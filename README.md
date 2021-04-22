@@ -9,7 +9,7 @@ ___________    ______ ________  _  _____________  __| _/
 
 只需记住一个足够长的安全主密码，无需安装任何插件、应用，就可以安全管理所有网站的密码
 
-https://password.github.io
+https://huxinmin.github.io/password/
 
 ## 功能
 
@@ -19,7 +19,7 @@ https://password.github.io
 
 ## 使用
 
-访问 https://password.github.io 选择域名，输入安全主密码，点击确定即可生成
+访问 https://huxinmin.github.io/password/ 选择域名，输入安全主密码，点击确定即可生成
 
 生成的密码将被复制到剪贴板，页面不做展示，可直接粘贴到网站的密码框中使用
 
